@@ -57,6 +57,7 @@ class _TambahDataPageState extends State<TambahDataPage> {
         ),
         backgroundColor: AppColor.secondary,
         foregroundColor: Colors.white,
+        actions: [IconButton(onPressed: _simpanResep, icon: Icon(Icons.check))],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -104,21 +105,6 @@ class _TambahDataPageState extends State<TambahDataPage> {
               _buildField(_langkahController, 'Langkah Memasak', maxLines: 5),
               _buildField(_kategoriController, 'Kategori'),
               _buildField(_waktuController, 'Waktu Memasak'),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _simpanResep,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.secondary,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Simpan',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
             ],
           ),
         ),

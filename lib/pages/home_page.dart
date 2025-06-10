@@ -32,13 +32,26 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> muatData() async {
-    final data = await DatabaseHelper.getAllData();
-    final jumlah = await DatabaseHelper.getTotalResep();
-    setState(() {
-      daftarResep = data;
-      _filteredResep = data;
-      _totalResep = jumlah;
-    });
+    try {
+      final data = await DatabaseHelper.getAllData();
+      final jumlah = await DatabaseHelper.getTotalResep();
+      if (mounted) {
+        setState(() {
+          daftarResep = data;
+          _filteredResep = data;
+          _totalResep = jumlah;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal memuat data: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _searchResep() {
@@ -53,10 +66,23 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _muatTotalFavorite() async {
-    int total = await DatabaseHelper.countFavorite();
-    setState(() {
-      _totalFavorite = total;
-    });
+    try {
+      int total = await DatabaseHelper.countFavorite();
+      if (mounted) {
+        setState(() {
+          _totalFavorite = total;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal memuat jumlah favorit: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _onItemTapped(int index) {
@@ -205,81 +231,127 @@ class _HomePageState extends State<HomePage> {
         ),
         SizedBox(height: 12),
         Expanded(
-          child: ListView.builder(
-            itemCount: _filteredResep.length,
-            itemBuilder: (BuildContext context, int index) {
-              final resep = _filteredResep[index];
-              return Card(
-                color: AppColor.accent,
-                elevation: 4,
-                child: ListTile(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => DetailPage(
-                              heroTag: 'resep_$index',
-                              resep: resep,
-                            ),
-                      ),
-                    );
-                  },
-                  leading: Hero(
-                    tag: 'resep_$index',
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.file(
-                        File(
-                          resep.imageUrl ?? 'assets/images/no_image_found.jpg',
+          child:
+              _filteredResep.isEmpty
+                  ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.no_food,
+                          size: 80,
+                          color: Colors.white.withOpacity(0.5),
                         ),
-                        height: 75,
-                        width: 75,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  title: Text(
-                    resep.name,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        resep.description,
-                        style: TextStyle(fontSize: 12, color: Colors.white),
-                      ),
-                      SizedBox(height: 4),
-                      Row(
-                        children: [
-                          _buildContainerDetails(
-                            icon: Icons.timer_outlined,
-                            height: 20,
-
-                            color: AppColor.addOns,
-                            label: '${resep.waktu} Menit',
+                        SizedBox(height: 16),
+                        Text(
+                          'Belum ada resep',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white.withOpacity(0.7),
+                            fontWeight: FontWeight.bold,
                           ),
-                          SizedBox(width: 4),
-                          _buildContainerDetails(
-                            icon: Icons.category_outlined,
-                            height: 20,
-
-                            color: AppColor.addOns2,
-                            label: '${resep.kategori}',
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Tambahkan resep baru dengan menekan tombol +',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white.withOpacity(0.5),
                           ),
-                        ],
-                      ),
-                    ],
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  )
+                  : ListView.builder(
+                    itemCount: _filteredResep.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final resep = _filteredResep[index];
+                      return Card(
+                        color: AppColor.accent,
+                        elevation: 4,
+                        child: ListTile(
+                          onTap: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => DetailPage(
+                                      heroTag: 'resep_$index',
+                                      resep: resep,
+                                    ),
+                              ),
+                            );
+                            if (result == true) {
+                              await muatData();
+                              await _muatTotalFavorite();
+                            }
+                          },
+                          leading: Hero(
+                            tag: 'resep_$index',
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.file(
+                                File(
+                                  resep.imageUrl ??
+                                      'assets/images/no_image_found.jpg',
+                                ),
+                                height: 75,
+                                width: 75,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          title: Text(
+                            resep.name,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                          trailing:
+                              resep.isFavorite
+                                  ? Icon(
+                                    Icons.favorite,
+                                    color: Colors.red,
+                                    size: 16,
+                                  )
+                                  : null,
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                resep.description,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  _buildContainerDetails(
+                                    icon: Icons.timer_outlined,
+                                    height: 20,
+                                    color: AppColor.addOns,
+                                    label: '${resep.waktu} Menit',
+                                  ),
+                                  SizedBox(width: 4),
+                                  _buildContainerDetails(
+                                    icon: Icons.category_outlined,
+                                    height: 20,
+                                    color: AppColor.addOns2,
+                                    label: '${resep.kategori}',
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                ),
-              );
-            },
-          ),
         ),
       ],
     );

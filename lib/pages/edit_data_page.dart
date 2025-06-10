@@ -48,19 +48,31 @@ class _EditDataPageState extends State<EditDataPage> {
   void _updateResep() async {
     if (_formKey.currentState!.validate()) {
       final updatedResep = ResepModel(
-        id: widget.resep.id, // pastikan tidak null
-        name: _namaController.text,
-        description: _deskripsiController.text,
-        steps: _langkahController.text,
-        kategori: _kategoriController.text,
-        waktu: _waktuController.text,
-        imageUrl: _imageFile?.path ?? widget.resep.imageUrl,
+        id: widget.resep.id,
+        name: _namaController.text.trim(),
+        description: _deskripsiController.text.trim(),
+        steps: _langkahController.text.trim(),
+        kategori: _kategoriController.text.trim(),
+        waktu: _waktuController.text.trim(),
+        imageUrl: _imageFile != null ? _imageFile!.path : widget.resep.imageUrl,
         isFavorite: widget.resep.isFavorite,
       );
 
-      debugPrint('Update data dengan ID: ${updatedResep.id}');
-      await DatabaseHelper.updateData(updatedResep);
-      Navigator.pop(context, true);
+      try {
+        await DatabaseHelper.updateData(updatedResep);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Resep berhasil diperbarui')),
+          );
+          Navigator.pop(context, true);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Gagal memperbarui resep: $e')),
+          );
+        }
+      }
     }
   }
 
@@ -72,6 +84,7 @@ class _EditDataPageState extends State<EditDataPage> {
         title: const Text('Edit Resep', style: TextStyle(color: Colors.white)),
         backgroundColor: AppColor.secondary,
         foregroundColor: Colors.white,
+        actions: [IconButton(onPressed: _updateResep, icon: Icon(Icons.check))],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -128,21 +141,6 @@ class _EditDataPageState extends State<EditDataPage> {
               _buildField(_langkahController, 'Langkah Memasak', maxLines: 5),
               _buildField(_kategoriController, 'Kategori'),
               _buildField(_waktuController, 'Waktu Memasak'),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _updateResep,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColor.secondary,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Update',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
             ],
           ),
         ),
