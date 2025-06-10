@@ -176,7 +176,7 @@ class _HomePageState extends State<HomePage> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () {
-                        print('Resep Favorit diklik');
+                        _muatTotalFavorite();
                       },
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,

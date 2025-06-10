@@ -14,11 +14,36 @@ class AboutUs extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+              "Recips adalah aplikasi resep masakan yang memungkinkan pengguna untuk menyimpan, mengelola, dan berbagi resep masakan favorit mereka. Aplikasi ini dirancang dengan antarmuka yang intuitif dan mudah digunakan, memungkinkan pengguna untuk menambahkan resep baru, mengedit resep yang ada, dan menandai resep favorit mereka.",
               style: TextStyle(color: Colors.white),
             ),
             SizedBox(height: 14),
-            Text('V 1.0.0', style: TextStyle(color: Colors.white)),
+            Text(
+              "Fitur Utama:\n• Tambah dan edit resep\n• Simpan resep favorit\n• Cari resep berdasarkan nama atau deskripsi\n• Tampilkan detail resep lengkap\n• Antarmuka yang mudah digunakan",
+              style: TextStyle(color: Colors.white),
+            ),
+            SizedBox(height: 14),
+            Text.rich(
+              TextSpan(
+                text: "© 2025 Recips. All rights reserved.\nDikembangkan oleh ",
+                style: TextStyle(color: Colors.white70),
+                children: [
+                  TextSpan(
+                    text: "ardhanu",
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextSpan(
+                    text: " menggunakan Flutter",
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 14),
+            Text('Versi 1.0.0', style: TextStyle(color: Colors.white70)),
           ],
         ),
       ),
